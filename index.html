@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0d1117, #1f2937);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 30px;
+    }
+
+    #countdown {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .time-box {
+      background: #111827;
+      padding: 20px;
+      border-radius: 12px;
+      min-width: 80px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .time-box:hover {
+      transform: scale(1.05);
+    }
+
+    .number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      display: block;
+    }
+
+    .label {
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      .time-box {
+        padding: 15px;
+        min-width: 70px;
+      }
+      .number {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Countdown to Disney </h1>
+  <div id="countdown">
+    <div class="time-box">
+      <span class="number" id="days">0</span>
+      <span class="label">Days</span>
+    </div>
+    <div class="time-box">
+      <span class="number" id="hours">0</span>
+      <span class="label">Hours</span>
+    </div>
+    <div class="time-box">
+      <span class="number" id="minutes">0</span>
+      <span class="label">Minutes</span>
+    </div>
+    <div class="time-box">
+      <span class="number" id="seconds">0</span>
+      <span class="label">Seconds</span>
+    </div>
+  </div>
+
+  <script>
+    const targetDate = new Date("October 2, 2025 08:00:00").getTime();
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance <= 0) {
+        document.getElementById("countdown").innerHTML = "<h2>Time's up! 🎊</h2>";
+        clearInterval(timer);
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById("days").textContent = days;
+      document.getElementById("hours").textContent = hours;
+      document.getElementById("minutes").textContent = minutes;
+      document.getElementById("seconds").textContent = seconds;
+    }
+
+    const timer = setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>
