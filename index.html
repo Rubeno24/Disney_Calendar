@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Countdown</title>
+  <title>Halloween Countdown</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0d1117, #1f2937);
-      color: #ffffff;
+      font-family: "Creepster", Arial, sans-serif;
+      background: linear-gradient(135deg, #000000, #1a0d0d);
+      color: #ff7518;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -17,61 +17,77 @@
       margin: 0;
       text-align: center;
       padding: 20px;
+      overflow-x: hidden;
+      position: relative;
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 2.5rem;
       margin-bottom: 30px;
+      text-shadow: 2px 2px 5px #000;
     }
 
     #countdown {
       display: flex;
       gap: 15px;
-      flex-wrap: wrap;
       justify-content: center;
+      flex-wrap: nowrap;
+      overflow-x: auto;
     }
 
     .time-box {
-      background: #111827;
+      background: #2d1b1b;
       padding: 20px;
       border-radius: 12px;
       min-width: 80px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 15px rgba(255,117,24,0.4);
       transition: transform 0.2s ease;
+      flex: 0 0 auto;
     }
 
     .time-box:hover {
-      transform: scale(1.05);
+      transform: scale(1.08);
     }
 
     .number {
       font-size: 2.5rem;
       font-weight: bold;
       display: block;
+      color: #ffbf47;
     }
 
     .label {
       font-size: 0.9rem;
-      color: #9ca3af;
+      color: #fcd34d;
     }
 
-    /* Responsive adjustments */
+    /* floating bats */
+    .bat {
+      position: absolute;
+      font-size: 2rem;
+      animation: fly 10s linear infinite;
+      user-select: none;
+    }
+    .bat:nth-child(1) { top: 15%; left: -50px; animation-delay: 0s; }
+    .bat:nth-child(2) { top: 40%; left: -80px; animation-delay: 2s; }
+    .bat:nth-child(3) { top: 70%; left: -60px; animation-delay: 4s; }
+
+    @keyframes fly {
+      0% { transform: translateX(0) scale(1); opacity: 0.7; }
+      50% { transform: translateX(100vw) scale(1.2); opacity: 1; }
+      100% { transform: translateX(0) scale(1); opacity: 0.7; }
+    }
+
     @media (max-width: 600px) {
-      h1 {
-        font-size: 1.5rem;
-      }
-      .time-box {
-        padding: 15px;
-        min-width: 70px;
-      }
-      .number {
-        font-size: 2rem;
-      }
+      h1 { font-size: 1.8rem; }
+      .time-box { padding: 15px; min-width: 70px; }
+      .number { font-size: 2rem; }
     }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>Countdown to Disney </h1>
+  <h1>🎃 Countdown to Disney 🎃</h1>
   <div id="countdown">
     <div class="time-box">
       <span class="number" id="days">0</span>
@@ -91,6 +107,11 @@
     </div>
   </div>
 
+  <!-- bats as emojis -->
+  <div class="bat">🦇</div>
+  <div class="bat">🦇</div>
+  <div class="bat">🦇</div>
+
   <script>
     const targetDate = new Date("October 2, 2025 08:00:00").getTime();
 
@@ -99,7 +120,7 @@
       const distance = targetDate - now;
 
       if (distance <= 0) {
-        document.getElementById("countdown").innerHTML = "<h2>Time's up! 🎊</h2>";
+        document.getElementById("countdown").innerHTML = "<h2>🎃 Time's up! 👻</h2>";
         clearInterval(timer);
         return;
       }
