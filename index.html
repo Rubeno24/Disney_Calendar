@@ -21,6 +21,55 @@
       position: relative;
     }
 
+    /* 🔹 Hamburger button */
+    .menu-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 1001;
+      color: #ff7518;
+    }
+
+    /* 🔹 Side menu panel */
+    .side-menu {
+      height: 100%;
+      width: 0; /* hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: #1a0d0d;
+      overflow-x: hidden;
+      transition: 0.3s;
+      padding-top: 60px;
+      z-index: 1000;
+    }
+
+    .side-menu a {
+      padding: 10px 20px;
+      text-decoration: none;
+      font-size: 1.2rem;
+      color: #ffbf47;
+      display: block;
+      transition: 0.2s;
+    }
+
+    .side-menu a:hover {
+      background: #2d1b1b;
+      color: #fcd34d;
+    }
+
+    /* Close button inside menu */
+    .side-menu .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 2rem;
+      cursor: pointer;
+      color: #ff7518;
+    }
+
     h1 {
       font-size: 2.5rem;
       margin-bottom: 30px;
@@ -80,8 +129,8 @@
     }
 
     @media (max-width: 600px) {
-    body {
-        padding: 20px 40px; /* extra space left & right on mobile */
+      body {
+        padding: 20px 40px;
       }
       h1 { font-size: 1.8rem; }
       .time-box { padding: 15px; min-width: 70px; }
@@ -91,6 +140,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- 🔹 Hamburger button -->
+  <span class="menu-btn" onclick="openMenu()">☰</span>
+
+  <!-- 🔹 Side menu -->
+  <div id="sideMenu" class="side-menu">
+    <span class="close-btn" onclick="closeMenu()">×</span>
+    <a href="index.html">Home</a>
+    <a href="gallery.html">Gallery</a>
+  </div>
+
   <h1>🎃 Countdown to Disney 🎃</h1>
   <div id="countdown">
     <div class="time-box">
@@ -111,12 +170,20 @@
     </div>
   </div>
 
-  <!-- bats as emojis -->
+  <!-- bats -->
   <div class="bat">🦇</div>
   <div class="bat">🦇</div>
   <div class="bat">🦇</div>
 
   <script>
+    // 🔹 Open/Close menu
+    function openMenu() {
+      document.getElementById("sideMenu").style.width = "250px";
+    }
+    function closeMenu() {
+      document.getElementById("sideMenu").style.width = "0";
+    }
+
     const targetDate = new Date("October 2, 2025 08:00:00").getTime();
 
     function updateCountdown() {
