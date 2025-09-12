@@ -66,19 +66,6 @@
     }
     .delete-btn:hover { background:#cc0000; }
 
-    /* Mobile tweaks */
-    @media (max-width: 500px) {
-      h1 { font-size:1.5rem; }
-      .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap:10px;
-      }
-      .controls input, .controls button {
-        font-size:0.9rem;
-        padding:6px 10px;
-      }
-    }
-
     /* 🔹 Hamburger button */
     .menu-btn {
       position: absolute;
@@ -93,7 +80,7 @@
     /* 🔹 Side menu panel */
     .side-menu {
       height: 100%;
-      width: 0; /* hidden by default */
+      width: 0;
       position: fixed;
       top: 0;
       left: 0;
@@ -103,7 +90,6 @@
       padding-top: 60px;
       z-index: 1000;
     }
-
     .side-menu a {
       padding: 10px 20px;
       text-decoration: none;
@@ -112,13 +98,10 @@
       display: block;
       transition: 0.2s;
     }
-
     .side-menu a:hover {
       background: #2d1b1b;
       color: #fcd34d;
     }
-
-    /* Close button inside menu */
     .side-menu .close-btn {
       position: absolute;
       top: 15px;
@@ -141,15 +124,18 @@
     <a href="gallery.html">Gallery</a>
   </div>
 
-  <h1>Disney Gallery</h1>
+  <!-- Page content (hidden until password is correct) -->
+  <div id="protectedContent" style="display:none;">
+    <h1>Disney Gallery</h1>
 
-  <div class="controls">
-    <input type="file" id="fileInput">
-    <button onclick="uploadFile()">Upload</button>
-    <button id="editToggle" onclick="toggleEdit()">Edit</button>
+    <div class="controls">
+      <input type="file" id="fileInput">
+      <button onclick="uploadFile()">Upload</button>
+      <button id="editToggle" onclick="toggleEdit()">Edit</button>
+    </div>
+
+    <div class="gallery" id="gallery"></div>
   </div>
-
-  <div class="gallery" id="gallery"></div>
 
   <script>
     const USER = "Rubeno24";
@@ -157,7 +143,7 @@
     const BRANCH = "main";
     const VERCEL_API = "https://disney-calendar.vercel.app/api/github";
 
-    let editMode = false; // track edit mode
+    let editMode = false; 
 
     // 🔹 Open/Close side menu
     function openMenu() {
@@ -259,7 +245,25 @@
       });
     }
 
-    loadGallery(); // load on page open
+    // 🔹 Simple password protection with session storage
+    const PASSWORD = "Liz"; 
+    function checkPassword() {
+      if (sessionStorage.getItem("authenticated") === "true") {
+        document.getElementById("protectedContent").style.display = "block";
+        loadGallery();
+        return;
+      }
+      const entered = prompt("Enter password to access Disney Gallery:");
+      if (entered === PASSWORD) {
+        sessionStorage.setItem("authenticated", "true");
+        document.getElementById("protectedContent").style.display = "block";
+        loadGallery();
+      } else {
+        document.body.innerHTML = "<h2 style='color:red; margin-top:20%;'>🚫 Access Denied</h2>";
+      }
+    }
+
+    checkPassword();
   </script>
 </body>
 </html>
