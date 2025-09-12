@@ -1,29 +1,202 @@
-<input type="file" id="fileInput">
-<button onclick="uploadFile()">Upload</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disney Gallery</title>
+  <style>
+    body { background:#111; color:#fff; text-align:center; font-family:Arial, sans-serif; margin:0; }
+    h1 { margin-top:20px; font-size:2rem; }
 
-<script>
-async function uploadFile() {
-  const fileInput = document.getElementById("fileInput");
-  if (!fileInput.files.length) return alert("Pick a file!");
+    /* Controls bar */
+    .controls {
+      margin:15px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:center;
+    }
+    .controls input, .controls button {
+      font-size:1rem;
+      padding:8px 12px;
+      border-radius:6px;
+      border:none;
+      cursor:pointer;
+    }
+    .controls button {
+      background:#444;
+      color:#fff;
+    }
+    .controls button:hover {
+      background:#666;
+    }
 
-  const file = fileInput.files[0];
-  const reader = new FileReader();
+    /* Gallery grid */
+    .gallery { 
+      display:grid; 
+      grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); 
+      gap:15px; 
+      padding:20px; 
+    }
+    .photo-card { 
+      background:#222; 
+      padding:10px; 
+      border-radius:8px; 
+      box-shadow:0 4px 10px rgba(0,0,0,0.6); 
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+    .photo-card img { width:100%; border-radius:6px; margin-bottom:8px; }
 
-  reader.onloadend = async () => {
-    const content = reader.result.split(",")[1];
-    const filename = file.name;
+    .delete-btn {
+      background:#ff4444; 
+      color:#fff; 
+      border:none; 
+      padding:5px 10px;
+      border-radius:4px; 
+      cursor:pointer; 
+      font-size:0.9rem;
+    }
+    .delete-btn:hover { background:#cc0000; }
 
-    const response = await fetch("/.netlify/functions/upload", {
-      method: "POST",
-      body: JSON.stringify({ filename, content })
-    });
+    /* Mobile tweaks */
+    @media (max-width: 500px) {
+      h1 { font-size:1.5rem; }
+      .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap:10px;
+      }
+      .controls input, .controls button {
+        font-size:0.9rem;
+        padding:6px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>📸 Disney Gallery</h1>
 
-    const result = await response.json();
-    console.log(result);
+  <div class="controls">
+    <input type="file" id="fileInput">
+    <button onclick="uploadFile()">Upload</button>
+    <button id="editToggle" onclick="toggleEdit()">Edit</button>
+  </div>
 
-    alert(response.ok ? "✅ Uploaded! Refresh gallery in ~30s" : "❌ Upload failed");
-  };
+  <div class="gallery" id="gallery"></div>
 
-  reader.readAsDataURL(file);
-}
-</script>
+  <script>
+    const TOKEN = "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";
+    const USER = "Rubeno24";
+    const REPO = "Disney_Calendar";
+    const BRANCH = "main";
+
+    let editMode = false; // track whether we're in edit mode
+
+    // Upload a file to GitHub
+    async function uploadFile() {
+      const fileInput = document.getElementById("fileInput");
+      if (!fileInput.files.length) return alert("Pick a file!");
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onloadend = async () => {
+        const content = reader.result.split(",")[1];
+        const url = `https://api.github.com/repos/${USER}/${REPO}/contents/images/${file.name}`;
+
+        const body = {
+          message: `Add ${file.name}`,
+          content: content,
+          branch: BRANCH
+        };
+
+        const response = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Authorization": `token ${TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (response.ok) {
+          loadGallery(); // refresh gallery
+        } 
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    // Delete a file from GitHub
+    async function deleteFile(filename, sha) {
+      if (!confirm(`Delete ${filename}?`)) return;
+
+      const url = `https://api.github.com/repos/${USER}/${REPO}/contents/images/${filename}`;
+
+      const body = {
+        message: `Delete ${filename}`,
+        sha: sha,
+        branch: BRANCH
+      };
+
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `token ${TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (response.ok) {
+        loadGallery(); 
+      }
+    }
+
+    function toggleEdit() {
+      editMode = !editMode;
+      document.getElementById("editToggle").innerText = editMode ? "Done" : "Edit";
+      loadGallery();
+    }
+
+    // List files in /images folder
+    async function loadGallery() {
+      const url = `https://api.github.com/repos/${USER}/${REPO}/contents/images?t=${Date.now()}`;
+      const response = await fetch(url, {
+        headers: { "Authorization": `token ${TOKEN}` }
+      });
+      const files = await response.json();
+
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "";
+
+      if (!Array.isArray(files)) return; // handles empty or error
+
+      files.forEach(file => {
+        if (file.type === "file") {
+          const card = document.createElement("div");
+          card.className = "photo-card";
+
+          const img = document.createElement("img");
+          img.src = `https://raw.githubusercontent.com/${USER}/${REPO}/${BRANCH}/images/${file.name}?t=${Date.now()}`;
+          img.alt = file.name;
+          card.appendChild(img);
+
+          if (editMode) {
+            const btn = document.createElement("button");
+            btn.innerText = "Delete";
+            btn.className = "delete-btn";
+            btn.onclick = () => deleteFile(file.name, file.sha);
+            card.appendChild(btn);
+          }
+
+          gallery.appendChild(card);
+        }
+      });
+    }
+
+    loadGallery();
+  </script>
+</body>
+</html>
