@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Disney Gallery</title>
   <style>
-    body { background:#111; color:#fff; text-align:center; font-family:Arial, sans-serif; margin:0; }
+    body {
+      background:#111;
+      color:#fff;
+      text-align:center;
+      font-family: "Creepster", Arial, sans-serif;
+      margin:0;
+    }
     h1 { margin-top:20px; font-size:2rem; }
 
     /* Controls bar */
@@ -72,45 +78,70 @@
         padding:6px 10px;
       }
     }
-      /* Hamburger */
-  .hamburger {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    font-size: 1.8rem;
-    cursor: pointer;
-    z-index: 1001;
-  }
 
-  /* Sidebar menu */
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: -250px;
-    width: 250px;
-    height: 100%;
-    background: #222;
-    padding-top: 60px;
-    transition: left 0.3s ease;
-    z-index: 1000;
-  }
-  .sidebar.open {
-    left: 0;
-  }
-  .sidebar a {
-    display: block;
-    padding: 15px;
-    color: #fff;
-    text-decoration: none;
-    font-size: 1.1rem;
-  }
-  .sidebar a:hover {
-    background: #444;
-  }
+    /* 🔹 Hamburger button */
+    .menu-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 1001;
+      color: #ff7518;
+    }
+
+    /* 🔹 Side menu panel */
+    .side-menu {
+      height: 100%;
+      width: 0; /* hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: #1a0d0d;
+      overflow-x: hidden;
+      transition: 0.3s;
+      padding-top: 60px;
+      z-index: 1000;
+    }
+
+    .side-menu a {
+      padding: 10px 20px;
+      text-decoration: none;
+      font-size: 1.2rem;
+      color: #ffbf47;
+      display: block;
+      transition: 0.2s;
+    }
+
+    .side-menu a:hover {
+      background: #2d1b1b;
+      color: #fcd34d;
+    }
+
+    /* Close button inside menu */
+    .side-menu .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 2rem;
+      cursor: pointer;
+      color: #ff7518;
+    }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>📸 Disney Gallery</h1>
+  <!-- 🔹 Hamburger button -->
+  <span class="menu-btn" onclick="openMenu()">☰</span>
+
+  <!-- 🔹 Side menu -->
+  <div id="sideMenu" class="side-menu">
+    <span class="close-btn" onclick="closeMenu()">×</span>
+    <a href="index.html">Home</a>
+    <a href="gallery.html">Gallery</a>
+  </div>
+
+  <h1>Disney Gallery</h1>
 
   <div class="controls">
     <input type="file" id="fileInput">
@@ -127,6 +158,14 @@
     const VERCEL_API = "https://disney-calendar.vercel.app/api/github";
 
     let editMode = false; // track edit mode
+
+    // 🔹 Open/Close side menu
+    function openMenu() {
+      document.getElementById("sideMenu").style.width = "250px";
+    }
+    function closeMenu() {
+      document.getElementById("sideMenu").style.width = "0";
+    }
 
     // Upload a file via Vercel function
     async function uploadFile() {
