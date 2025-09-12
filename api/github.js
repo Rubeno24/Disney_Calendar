@@ -1,10 +1,13 @@
 export default async function handler(req, res) {
+    if (req.method === "OPTIONS") return res.status(200).end();
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
     }
   
     try {
-      const { filename, content, action, sha } = JSON.parse(req.body);
+      const { filename, content, action, sha } = req.body; // don't JSON.parse
+  
+      console.log("Incoming request:", { filename, action, hasContent: !!content, sha });
   
       const url = `https://api.github.com/repos/${process.env.GITHUB_USER}/${process.env.GITHUB_REPO}/contents/images/${filename}`;
   
@@ -16,6 +19,8 @@ export default async function handler(req, res) {
       if (action === "upload") body.content = content;
       if (action === "delete") body.sha = sha;
   
+      console.log("Sending to GitHub:", { url, body });
+  
       const ghRes = await fetch(url, {
         method: action === "delete" ? "DELETE" : "PUT",
         headers: {
@@ -26,8 +31,12 @@ export default async function handler(req, res) {
       });
   
       const data = await ghRes.json();
+  
+      console.log("GitHub response:", ghRes.status, data);
+  
       return res.status(ghRes.status).json(data);
     } catch (err) {
+      console.error("Function error:", err);
       return res.status(500).json({ error: err.message });
     }
   }
