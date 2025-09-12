@@ -86,14 +86,14 @@
   <div class="gallery" id="gallery"></div>
 
   <script>
-    const TOKEN = "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";
     const USER = "Rubeno24";
     const REPO = "Disney_Calendar";
     const BRANCH = "main";
+    const VERCEL_API = "https://disney-calendar.vercel.app/api/github";
 
-    let editMode = false; // track whether we're in edit mode
+    let editMode = false; // track edit mode
 
-    // Upload a file to GitHub
+    // Upload a file via Vercel function
     async function uploadFile() {
       const fileInput = document.getElementById("fileInput");
       if (!fileInput.files.length) return alert("Pick a file!");
@@ -103,54 +103,45 @@
 
       reader.onloadend = async () => {
         const content = reader.result.split(",")[1];
-        const url = `https://api.github.com/repos/${USER}/${REPO}/contents/images/${file.name}`;
 
-        const body = {
-          message: `Add ${file.name}`,
-          content: content,
-          branch: BRANCH
-        };
-
-        const response = await fetch(url, {
-          method: "PUT",
-          headers: {
-            "Authorization": `token ${TOKEN}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(body)
+        const response = await fetch(VERCEL_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "upload",
+            filename: file.name,
+            content: content
+          })
         });
 
         if (response.ok) {
           loadGallery(); // refresh gallery
-        } 
+        } else {
+          alert("❌ Upload failed");
+        }
       };
 
       reader.readAsDataURL(file);
     }
 
-    // Delete a file from GitHub
+    // Delete a file via Vercel function
     async function deleteFile(filename, sha) {
       if (!confirm(`Delete ${filename}?`)) return;
 
-      const url = `https://api.github.com/repos/${USER}/${REPO}/contents/images/${filename}`;
-
-      const body = {
-        message: `Delete ${filename}`,
-        sha: sha,
-        branch: BRANCH
-      };
-
-      const response = await fetch(url, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `token ${TOKEN}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
+      const response = await fetch(VERCEL_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "delete",
+          filename: filename,
+          sha: sha
+        })
       });
 
       if (response.ok) {
         loadGallery(); 
+      } else {
+        alert("❌ Delete failed");
       }
     }
 
@@ -160,12 +151,10 @@
       loadGallery();
     }
 
-    // List files in /images folder
+    // List files from GitHub directly (safe, read-only)
     async function loadGallery() {
       const url = `https://api.github.com/repos/${USER}/${REPO}/contents/images?t=${Date.now()}`;
-      const response = await fetch(url, {
-        headers: { "Authorization": `token ${TOKEN}` }
-      });
+      const response = await fetch(url);
       const files = await response.json();
 
       const gallery = document.getElementById("gallery");
@@ -196,7 +185,7 @@
       });
     }
 
-    loadGallery();
+    loadGallery(); // load on page open
   </script>
 </body>
 </html>
