@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Disney Gallery</title>
+  <title>Photo Gallery</title>
   <style>
     body {
       background:#111;
@@ -74,7 +74,7 @@
       font-size: 2rem;
       cursor: pointer;
       z-index: 1001;
-      color: #ff7518;
+      color: #ca008e;
     }
 
     /* 🔹 Side menu panel */
@@ -94,7 +94,7 @@
       padding: 10px 20px;
       text-decoration: none;
       font-size: 1.2rem;
-      color: #ffbf47;
+      color: #ffffff;
       display: block;
       transition: 0.2s;
     }
@@ -108,10 +108,9 @@
       right: 20px;
       font-size: 2rem;
       cursor: pointer;
-      color: #ff7518;
+      color: #ffffff;
     }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- 🔹 Hamburger button -->
@@ -126,7 +125,7 @@
 
   <!-- Page content (hidden until password is correct) -->
   <div id="protectedContent" style="display:none;">
-    <h1>Disney Gallery</h1>
+    <h1>Photo Gallery</h1>
 
     <div class="controls">
       <input type="file" id="fileInput">
@@ -137,111 +136,128 @@
     <div class="gallery" id="gallery"></div>
   </div>
 
-  <script>
-    const USER = "Rubeno24";
-    const REPO = "Disney_Calendar";
-    const BRANCH = "main";
-    const VERCEL_API = "https://disney-calendar.vercel.app/api/github";
+  <script type="module">
+    // -----------------------------
+    // Supabase config
+    // -----------------------------
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const SUPABASE_URL = "https://fsrztznqbrsxrcwwpmfy.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_FTaWRH6NvDRjN4ffxrJh-A_bMLKPgTQ";
+    const BUCKET_NAME = "photos";
 
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let editMode = false; 
 
     // 🔹 Open/Close side menu
-    function openMenu() {
+    window.openMenu = function () {
       document.getElementById("sideMenu").style.width = "250px";
-    }
-    function closeMenu() {
-      document.getElementById("sideMenu").style.width = "0";
-    }
+    };
 
-    // Upload a file via Vercel function
-    async function uploadFile() {
+    window.closeMenu = function () {
+      document.getElementById("sideMenu").style.width = "0";
+    };
+
+    // Upload a file to Supabase Storage
+    window.uploadFile = async function () {
       const fileInput = document.getElementById("fileInput");
-      if (!fileInput.files.length) return alert("Pick a file!");
+      if (!fileInput.files.length) {
+        alert("Pick a file!");
+        return;
+      }
 
       const file = fileInput.files[0];
-      const reader = new FileReader();
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const filePath = `${Date.now()}-${safeName}`;
 
-      reader.onloadend = async () => {
-        const content = reader.result.split(",")[1];
-
-        const response = await fetch(VERCEL_API, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "upload",
-            filename: file.name,
-            content: content
-          })
+      const { error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type
         });
 
-        if (response.ok) {
-          loadGallery(); // refresh gallery
-        } else {
-          alert("❌ Upload failed");
-        }
-      };
+      if (error) {
+        console.error("Upload failed:", error);
+        alert("❌ Upload failed");
+        return;
+      }
 
-      reader.readAsDataURL(file);
-    }
+      fileInput.value = "";
+      loadGallery();
+    };
 
-    // Delete a file via Vercel function
-    async function deleteFile(filename, sha) {
+    // Delete a file from Supabase Storage
+    async function deleteFile(filename) {
       if (!confirm(`Delete ${filename}?`)) return;
 
-      const response = await fetch(VERCEL_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "delete",
-          filename: filename,
-          sha: sha
-        })
-      });
+      const { error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .remove([filename]);
 
-      if (response.ok) {
-        loadGallery(); 
-      } else {
+      if (error) {
+        console.error("Delete failed:", error);
         alert("❌ Delete failed");
+        return;
       }
-    }
 
-    function toggleEdit() {
-      editMode = !editMode;
-      document.getElementById("editToggle").innerText = editMode ? "Done" : "Edit";
       loadGallery();
     }
 
-    // List files from GitHub directly (safe, read-only)
-    async function loadGallery() {
-      const url = `https://api.github.com/repos/${USER}/${REPO}/contents/images?t=${Date.now()}`;
-      const response = await fetch(url);
-      const files = await response.json();
+    window.toggleEdit = function () {
+      editMode = !editMode;
+      document.getElementById("editToggle").innerText = editMode ? "Done" : "Edit";
+      loadGallery();
+    };
 
+    // Load files from Supabase Storage
+    async function loadGallery() {
       const gallery = document.getElementById("gallery");
       gallery.innerHTML = "";
 
-      if (!Array.isArray(files)) return; // handles empty or error
+      const { data: files, error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .list("", {
+          limit: 100,
+          offset: 0,
+          sortBy: { column: "created_at", order: "desc" }
+        });
+
+      if (error) {
+        console.error("Gallery load failed:", error);
+        gallery.innerHTML = "<p>Could not load gallery.</p>";
+        return;
+      }
+
+      if (!Array.isArray(files) || files.length === 0) {
+        gallery.innerHTML = "<p>No photos yet.</p>";
+        return;
+      }
 
       files.forEach(file => {
-        if (file.type === "file") {
-          const card = document.createElement("div");
-          card.className = "photo-card";
+        if (!file.name) return;
 
-          const img = document.createElement("img");
-          img.src = `https://raw.githubusercontent.com/${USER}/${REPO}/${BRANCH}/images/${file.name}?t=${Date.now()}`;
-          img.alt = file.name;
-          card.appendChild(img);
+        const card = document.createElement("div");
+        card.className = "photo-card";
 
-          if (editMode) {
-            const btn = document.createElement("button");
-            btn.innerText = "Delete";
-            btn.className = "delete-btn";
-            btn.onclick = () => deleteFile(file.name, file.sha);
-            card.appendChild(btn);
-          }
+        const img = document.createElement("img");
+        const { data: publicUrlData } = supabase.storage
+          .from(BUCKET_NAME)
+          .getPublicUrl(file.name);
 
-          gallery.appendChild(card);
+        img.src = `${publicUrlData.publicUrl}?t=${Date.now()}`;
+        img.alt = file.name;
+        card.appendChild(img);
+
+        if (editMode) {
+          const btn = document.createElement("button");
+          btn.innerText = "Delete";
+          btn.className = "delete-btn";
+          btn.onclick = () => deleteFile(file.name);
+          card.appendChild(btn);
         }
+
+        gallery.appendChild(card);
       });
     }
 

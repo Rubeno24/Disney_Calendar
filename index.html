@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Halloween Countdown</title>
+  <title>CoupleWebsite</title>
   <style>
     body {
       font-family: "Creepster", Arial, sans-serif;
@@ -111,17 +111,37 @@
       color: #fcd34d;
     }
 
-    /* floating bats */
-    .bat {
-      position: absolute;
-      font-size: 2rem;
-      animation: fly 10s linear infinite;
-      user-select: none;
-    }
-    .bat:nth-child(1) { top: 15%; left: -50px; animation-delay: 0s; }
-    .bat:nth-child(2) { top: 40%; left: -80px; animation-delay: 2s; }
-    .bat:nth-child(3) { top: 70%; left: -60px; animation-delay: 4s; }
+  .starwars {
+        position: absolute;
+        left: -120px;
+        animation: fly 12s linear infinite;
+        user-select: none;
+        pointer-events: none;
+        z-index: 1;
+      }
 
+      .starwars img {
+        filter: drop-shadow(0 0 8px #ffbf47);
+        width: 40px;
+        height: auto;
+        display: block;
+        opacity: 0.9;
+      }
+
+      .starwars:nth-of-type(1) {
+        top: 15%;
+        animation-delay: 0s;
+      }
+
+      .starwars:nth-of-type(2) {
+        top: 42%;
+        animation-delay: 4s;
+      }
+
+      .starwars:nth-of-type(3) {
+        top: 70%;
+        animation-delay: 8s;
+      }
     @keyframes fly {
       0% { transform: translateX(0) scale(1); opacity: 0.7; }
       50% { transform: translateX(100vw) scale(1.2); opacity: 1; }
@@ -151,7 +171,7 @@
     <a href="date_we_met.html">Days Since We Started Daiting</a>
   </div>
 
-  <h1>🎃 Countdown to Disney 🎃</h1>
+  <h1>Countdown to Disney</h1>
   <div id="countdown">
     <div class="time-box">
       <span class="number" id="days">0</span>
@@ -172,9 +192,14 @@
   </div>
 
   <!-- bats -->
-  <div class="bat">🦇</div>
-  <div class="bat">🦇</div>
-  <div class="bat">🦇</div>
+   <div class="starwars">
+      <img src="images/Falcon.png" alt="Millennium Falcon">
+    </div>
+
+    <div class="starwars">
+      <img src="images/TieFighter.png" alt="TIE Fighter">
+    </div>
+
 
   <script>
     // 🔹 Open/Close menu
@@ -185,7 +210,7 @@
       document.getElementById("sideMenu").style.width = "0";
     }
 
-    const targetDate = new Date("October 2, 2025 08:00:00").getTime();
+    const targetDate = new Date("May 4, 2026 08:00:00").getTime();
 
     function updateCountdown() {
       const now = new Date().getTime();
