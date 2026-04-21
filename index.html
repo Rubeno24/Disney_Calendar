@@ -6,9 +6,8 @@
   <title>CoupleWebsite</title>
   <style>
     body {
-      font-family: "Creepster", Arial, sans-serif;
-      background: linear-gradient(135deg, #000000, #1a0d0d);
-      color: #ff7518;
+    font-family: 'Orbitron', sans-serif;
+      background: radial-gradient(ellipse at bottom, #000000 0%, #020111 100%);      color: #ffffff;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -29,7 +28,7 @@
       font-size: 2rem;
       cursor: pointer;
       z-index: 1001;
-      color: #ff7518;
+      color: #fffb00;
     }
 
     /* 🔹 Side menu panel */
@@ -50,7 +49,7 @@
       padding: 10px 20px;
       text-decoration: none;
       font-size: 1.2rem;
-      color: #ffbf47;
+      color: #fffb00;
       display: block;
       transition: 0.2s;
     }
@@ -67,7 +66,7 @@
       right: 20px;
       font-size: 2rem;
       cursor: pointer;
-      color: #ff7518;
+      color: #fffb00;
     }
 
     h1 {
@@ -103,12 +102,12 @@
       font-size: 2.5rem;
       font-weight: bold;
       display: block;
-      color: #ffbf47;
+      color: #fffb00;
     }
 
     .label {
       font-size: 0.9rem;
-      color: #fcd34d;
+      color: #fffb00;
     }
 
   .starwars {
@@ -157,8 +156,7 @@
       .number { font-size: 2rem; }
     }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
-</head>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet"></head>
 <body>
   <!-- 🔹 Hamburger button -->
   <span class="menu-btn" onclick="openMenu()">☰</span>
@@ -217,7 +215,7 @@
       const distance = targetDate - now;
 
       if (distance <= 0) {
-        document.getElementById("countdown").innerHTML = "<h2>🎃 Time to go to Disney!!!! 👻</h2>";
+        document.getElementById("countdown").innerHTML = "<h2> Time to go to Disney!!!! </h2>";
         clearInterval(timer);
         return;
       }
